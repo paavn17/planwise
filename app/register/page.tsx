@@ -3,6 +3,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
+import { auth } from "@/lib/firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,15 +19,26 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Registration successful!");
-      router.push("/login");
-    }, 2000);
-  };
+  try {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Optional: You can update profile here (displayName)
+    // await result.user.updateProfile({
+    //   displayName: name,
+    // });
+
+    toast.success("Registration successful!");
+    router.push("/login");
+  } catch (error: any) {
+    toast.error(error.message || "Registration failed");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 text-white">

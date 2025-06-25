@@ -3,6 +3,12 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,14 +18,20 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Login successful!");
-    }, 2000);
-  };
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    toast.success("Login successful!");
+    router.push("/"); // Redirect to dashboard/home
+  } catch (error: any) {
+    toast.error(error.message || "Login failed");
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 text-white">

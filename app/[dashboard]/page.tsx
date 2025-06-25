@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase'; 
+import { toast } from 'react-hot-toast';
 
-// Type definitions
 type Tab = 'dashboard' | 'tasks' | 'profile';
 
 interface TabConfig {
@@ -13,8 +16,18 @@ interface TabConfig {
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const router = useRouter();
 
-  // Configuration for tabs
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast.success("Logged out successfully");
+      router.push("/login");
+    } catch (error: any) {
+      toast.error("Failed to log out");
+    }
+  };
+
   const tabs: TabConfig[] = [
     {
       id: 'dashboard',
@@ -89,7 +102,15 @@ export default function Dashboard() {
 
       {/* Main Content Area */}
       <main className="w-full lg:ml-60 h-full overflow-y-auto">
-        <div className="h-full w-full bg-zinc-900 rounded-xl shadow-inner p-4">
+        <div className="h-full w-full bg-zinc-900 rounded-xl shadow-inner p-4 relative">
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-all"
+          >
+            Logout
+          </button>
+
           {activeComponent}
         </div>
       </main>
