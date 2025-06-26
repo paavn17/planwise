@@ -34,7 +34,7 @@ export default function Dashboard() {
     {
       id: 'dashboard',
       label: 'Dashboard',
-      component: <TaskForm/>,
+      component: <p>Dashboard</p>,
     },
     {
       id: 'tasks',
@@ -81,7 +81,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="flex h-screen bg-zinc-900 text-white overflow-hidden relative">
+    <div className="flex h-screen bg-zinc-900 text-white overflow-hidden relative overflow-y-auto invisible-scrollbar">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block fixed top-6 left-8 bottom-6 w-52 bg-zinc-800 rounded-3xl p-6 flex flex-col gap-20 z-50 shadow-xl">
         <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">

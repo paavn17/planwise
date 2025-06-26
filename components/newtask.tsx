@@ -8,7 +8,7 @@ export interface TaskFormData {
   category: string[];
   priority: 'High' | 'Medium' | 'Low';
   dueDate: string;
-  status: 'Not Yet Started' | 'To Do' | 'In Progress' | 'Completed';
+  status: 'Not Started' | 'To Do' | 'In Progress' | 'Completed';
 }
 
 interface TaskFormProps {
@@ -19,7 +19,7 @@ interface TaskFormProps {
 const availableCategories = [
   'Coding', 'Design', 'Sports', 'Learning', 'Work',
   'Personal', 'Health', 'Finance', 'Travel', 'Shopping',
-  'Chores', 'Entertainment', 'Fitness', 'Reading', 'Volunteering',
+  'Chores', 'Fitness', 'Reading', 'Volunteering',
 ];
 
 export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
@@ -29,7 +29,7 @@ export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
     category: [],
     priority: 'Medium',
     dueDate: '',
-    status: 'Not Yet Started',
+    status: 'Not Started',
   });
 
   const handleChange = (
@@ -73,9 +73,11 @@ export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-     <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent rounded-2xl shadow-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border border-zinc-700/50 relative">
+    <div className="fixed inset-0 flex items-center justify-center z-40 p-4">
+      <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 border border-zinc-700/50 relative scrollbar-thin scrollbar-track-zinc-800/50 scrollbar-thumb-zinc-600/50 hover:scrollbar-thumb-zinc-500/70">
+        
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-green-500/5 animate-pulse pointer-events-none" />
+        
         <div className="relative z-10 p-6">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-green-400 to-blue-500 animate-pulse" />
@@ -86,7 +88,6 @@ export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 text-sm text-white">
-            {/* Title */}
             <div>
               <label className="block mb-1">Task Title</label>
               <input
@@ -99,7 +100,6 @@ export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
               />
             </div>
 
-            {/* Description */}
             <div>
               <label className="block mb-1">Description</label>
               <textarea
@@ -113,7 +113,6 @@ export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
               />
             </div>
 
-            {/* Categories */}
             <div>
               <label className="block mb-1">Categories</label>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -148,7 +147,6 @@ export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
               </div>
             </div>
 
-            {/* Priority & Status */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block mb-1">Priority</label>
@@ -182,7 +180,6 @@ export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
               </div>
             </div>
 
-            {/* Due Date */}
             <div>
               <label className="block mb-1">Due Date</label>
               <input
@@ -195,7 +192,6 @@ export default function TaskForm({ onSubmit, onCancel }: TaskFormProps) {
               />
             </div>
 
-            {/* Action Buttons */}
             <div className="flex justify-end gap-3 pt-2">
               {onCancel && (
                 <button
