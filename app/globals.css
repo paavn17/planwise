@@ -5,3 +5,14 @@ body {
   background-image: linear-gradient(to left, rgb(56, 54, 54) 0%, black 100%);
   color: white; 
 }
+
+
+/* Optional: hide scrollbars but still allow scrolling */
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}

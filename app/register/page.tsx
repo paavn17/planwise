@@ -1,14 +1,15 @@
 "use client";
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import {
-  signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
-
+import { doc, setDoc } from "firebase/firestore";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -19,26 +20,32 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  try {
-    const result = await createUserWithEmailAndPassword(auth, email, password);
+    try {
+      // Create user with email and password
+      const result = await createUserWithEmailAndPassword(auth, email, password);
 
-    // Optional: You can update profile here (displayName)
-    // await result.user.updateProfile({
-    //   displayName: name,
-    // });
+      // Optional: Set displayName (if needed later)
+      await updateProfile(result.user, { displayName: name });
 
-    toast.success("Registration successful!");
-    router.push("/login");
-  } catch (error: any) {
-    toast.error(error.message || "Registration failed");
-  } finally {
-    setIsLoading(false);
-  }
-};
+      // Save name + email to Firestore (using UID as doc ID)
+      await setDoc(doc(db, "users", result.user.uid), {
+        uid: result.user.uid,
+        name,
+        email,
+        createdAt: new Date(),
+      });
 
+      toast.success("Registration successful!");
+      router.push("/login");
+    } catch (error: any) {
+      toast.error(error.message || "Registration failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 text-white">
@@ -55,6 +62,7 @@ export default function RegisterPage() {
           </div>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Name Field */}
             <div>
               <label className="text-sm font-medium text-gray-300">Name</label>
               <div className="relative mt-1">
@@ -70,6 +78,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Email Field */}
             <div>
               <label className="text-sm font-medium text-gray-300">Email</label>
               <div className="relative mt-1">
@@ -85,6 +94,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Password Field */}
             <div>
               <label className="text-sm font-medium text-gray-300">Password</label>
               <div className="relative mt-1">
@@ -102,11 +112,16 @@ export default function RegisterPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3.5 cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5 text-gray-500 hover:text-gray-300 transition" /> : <Eye className="h-5 w-5 text-gray-500 hover:text-gray-300 transition" />}
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-500 hover:text-gray-300 transition" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-500 hover:text-gray-300 transition" />
+                  )}
                 </button>
               </div>
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
@@ -125,8 +140,11 @@ export default function RegisterPage() {
 
           <div className="mt-8 text-center">
             <p className="text-gray-400">
-              Already have an account?{' '}
-              <button onClick={() => router.push("/login")} className="text-white font-semibold hover:underline cursor-pointer">
+              Already have an account?{" "}
+              <button
+                onClick={() => router.push("/login")}
+                className="text-white font-semibold hover:underline cursor-pointer"
+              >
                 Log in here
               </button>
             </p>

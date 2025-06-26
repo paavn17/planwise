@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase'; 
 import { toast } from 'react-hot-toast';
+import TasksPage from '@/components/tasks';
+import TaskForm from '@/components/newtask';
 
 type Tab = 'dashboard' | 'tasks' | 'profile';
 
@@ -32,12 +34,12 @@ export default function Dashboard() {
     {
       id: 'dashboard',
       label: 'Dashboard',
-      component: <div className="text-lg sm:text-xl">Welcome to your dashboard!</div>,
+      component: <TaskForm/>,
     },
     {
       id: 'tasks',
       label: 'Tasks',
-      component: <div className="text-lg sm:text-xl">Here are your tasks.</div>,
+      component: <TasksPage/>,
     },
     {
       id: 'profile',
