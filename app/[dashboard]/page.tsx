@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase'; 
-import { toast } from 'react-hot-toast';
 import TasksPage from '@/components/tasks';
-import TaskForm from '@/components/newtask';
+import ProfilePage from '../profile/page';
+
 
 type Tab = 'dashboard' | 'tasks' | 'profile';
 
@@ -19,16 +17,6 @@ interface TabConfig {
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      toast.success("Logged out successfully");
-      router.push("/login");
-    } catch (error: any) {
-      toast.error("Failed to log out");
-    }
-  };
 
   const tabs: TabConfig[] = [
     {
@@ -44,7 +32,7 @@ export default function Dashboard() {
     {
       id: 'profile',
       label: 'Profile',
-      component: <div className="text-lg sm:text-xl">This is your profile section.</div>,
+      component: <ProfilePage/>
     },
   ];
 
@@ -81,14 +69,14 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="flex h-screen bg-zinc-900 text-white overflow-hidden relative overflow-y-auto invisible-scrollbar">
+    <div className="flex h-screen bg-zinc-900 text-white overflow-hidden relative ">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block fixed top-6 left-8 bottom-6 w-52 bg-zinc-800 rounded-3xl p-6 flex flex-col gap-20 z-50 shadow-xl">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">
+      <aside className="hidden lg:block fixed top-6 left-8 bottom-6 w-52 bg-zinc-800 rounded-3xl p-6 flex flex-col  z-50 shadow-xl">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-10">
           PlanWise
         </h2>
 
-        <nav className="flex flex-col gap-2">
+        <nav className="flex flex-col gap-4">
           {tabs.map((tab) => (
             <TabButton key={`desktop-${tab.id}`} tab={tab} />
           ))}
@@ -105,14 +93,6 @@ export default function Dashboard() {
       {/* Main Content Area */}
       <main className="w-full lg:ml-60 h-full overflow-y-auto">
         <div className="h-full w-full bg-zinc-900 rounded-xl shadow-inner p-4 relative">
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-all"
-          >
-            Logout
-          </button>
-
           {activeComponent}
         </div>
       </main>

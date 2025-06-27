@@ -1,10 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pencil, Trash2, Plus } from 'lucide-react';
-import TaskForm, { TaskFormData } from './newtask'
+import TaskForm, { TaskFormData } from './newtask';
+import {
+  addDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { auth, db } from '@/lib/firebase';
 
-type Task = {
+// Define the shape of a task
+export type Task = {
   id: string;
   title: string;
   description: string;
@@ -12,29 +23,12 @@ type Task = {
   priority: 'High' | 'Medium' | 'Low';
   status: 'Not Started' | 'To Do' | 'In Progress' | 'Completed';
   dueDate: string;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
-const dummyTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Learn Arrays in JS',
-    description: 'Practice map, filter, reduce functions with real examples.',
-    category: 'Coding',
-    priority: 'High',
-    status: 'To Do',
-    dueDate: '2025-06-28',
-  },
-  {
-    id: '2',
-    title: 'Read History Chapter 3',
-    description: 'Complete the reading and make notes.',
-    category: 'History',
-    priority: 'Medium',
-    status: 'In Progress',
-    dueDate: '2025-06-27',
-  },
-];
-
+// Helpers for UI
 const getPriorityDot = (priority: Task['priority']) => {
   switch (priority) {
     case 'High': return 'bg-red-500';
@@ -55,18 +49,83 @@ const getStatusColor = (status: Task['status']) => {
 };
 
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(dummyTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const handleAddTask = (data: TaskFormData) => {
-    const newTask: Task = {
-      ...data,
-      id: Date.now().toString(),
-      category: data.category[0] || 'General', // Use first category or fallback
+  // Fetch tasks securely and unsubscribe on logout
+  useEffect(() => {
+    let unsubscribeTasks: (() => void) | null = null;
+
+    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+      if (unsubscribeTasks) unsubscribeTasks();
+      if (!user) {
+        setTasks([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      const q = query(
+        collection(db, 'tasks'),
+        where('userId', '==', user.uid),
+        orderBy('createdAt', 'desc')
+      );
+
+      unsubscribeTasks = onSnapshot(
+        q,
+        (snapshot) => {
+          const userTasks = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              ...data,
+              createdAt: data.createdAt?.toDate?.() || new Date(),
+              updatedAt: data.updatedAt?.toDate?.() || new Date(),
+            } as Task;
+          });
+          setTasks(userTasks);
+          setLoading(false);
+        },
+        (error) => {
+          console.error('Snapshot error:', error);
+          setTasks([]);
+          setLoading(false);
+        }
+      );
+    });
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeTasks) unsubscribeTasks();
     };
-    setTasks((prev) => [...prev, newTask]);
-    setShowForm(false);
+  }, []);
+
+  const handleAddTask = async (data: TaskFormData) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const task = {
+      ...data,
+      userId: user.uid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(db, 'tasks'), task);
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
   };
+
+  const filteredTasks = tasks.filter((task) =>
+    task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    task.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    task.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="p-6 text-white min-h-screen bg-zinc-900 relative">
@@ -74,6 +133,8 @@ export default function TasksPage() {
         <input
           type="text"
           placeholder="Search tasks..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="px-4 py-2 rounded-md bg-zinc-800 text-white placeholder-gray-400 border border-zinc-700 focus:outline-none focus:ring focus:ring-white/20"
         />
         <button
@@ -84,53 +145,56 @@ export default function TasksPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tasks.map((task) => (
-          <div
-            key={task.id}
-            className="relative bg-zinc-800 border border-zinc-700 rounded-xl p-5 flex flex-col justify-between shadow-md"
-          >
-            <div className="absolute top-4 right-4 flex flex-col items-center gap-2">
+      {loading ? (
+        <div className="text-center mt-10 text-gray-400">Loading tasks...</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTasks.map((task) => (
               <div
-                className={`w-2 h-2 rounded-full ${getPriorityDot(
-                  task.priority
-                )} shadow-[0_0_8px_2px_rgba(255,255,255,0.3)]`}
-                title={`Priority: ${task.priority}`}
-              />
-              <p className={`text-xs ${getStatusColor(task.status)}`}>{task.status}</p>
-            </div>
+                key={task.id}
+                className="relative bg-zinc-800 border border-zinc-700 rounded-xl p-5 flex flex-col justify-between shadow-md"
+              >
+                <div className="absolute top-4 right-4 flex flex-col items-center gap-2">
+                  <div
+                    className={`w-2 h-2 rounded-full ${getPriorityDot(task.priority)} shadow-[0_0_8px_2px_rgba(255,255,255,0.3)]`}
+                    title={`Priority: ${task.priority}`}
+                  />
+                  <p className={`text-xs ${getStatusColor(task.status)}`}>{task.status}</p>
+                </div>
 
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold mb-1">{task.title}</h2>
-              <p className="text-base text-gray-300 leading-relaxed mb-4">{task.description}</p>
+                <div className="mb-4">
+                  <h2 className="text-lg font-semibold mb-1">{task.title}</h2>
+                  <p className="text-base text-gray-300 leading-relaxed mb-4">{task.description}</p>
 
-              <div className="flex flex-wrap gap-2 text-xs text-white/80">
-                <span className="bg-indigo-600 px-2 py-1 rounded-full">
-                  {task.category}
-                </span>
-                <span className="bg-zinc-700 px-2 py-1 rounded-full">
-                  Due: {task.dueDate}
-                </span>
+                  <div className="flex flex-wrap gap-2 text-xs text-white/80">
+                    <span className="bg-indigo-600 px-2 py-1 rounded-full">
+                      {task.category}
+                    </span>
+                    <span className="bg-zinc-700 px-2 py-1 rounded-full">
+                      Due: {new Date(task.dueDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-2">
+                  <button className="flex items-center gap-1 px-3 py-1 rounded-md bg-zinc-700 hover:bg-zinc-600 text-sm transition">
+                    <Pencil size={16} /> Edit
+                  </button>
+                  <button className="flex items-center gap-1 px-3 py-1 rounded-md bg-red-600 hover:bg-red-500 text-sm transition">
+                    <Trash2 size={16} /> Delete
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <div className="flex justify-end gap-3 mt-2">
-              <button className="flex items-center gap-1 px-3 py-1 rounded-md bg-zinc-700 hover:bg-zinc-600 text-sm transition">
-                <Pencil size={16} /> Edit
-              </button>
-              <button className="flex items-center gap-1 px-3 py-1 rounded-md bg-red-600 hover:bg-red-500 text-sm transition">
-                <Trash2 size={16} /> Delete
-              </button>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {tasks.length === 0 && (
-        <div className="text-center mt-10 text-gray-400">No tasks found.</div>
+          {filteredTasks.length === 0 && !loading && (
+            <div className="text-center mt-10 text-gray-400">No tasks found.</div>
+          )}
+        </>
       )}
 
-      {/* Task Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <TaskForm
