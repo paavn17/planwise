@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import TasksPage from '@/components/tasks/tasks';
 import ProfilePage from '../profile/page';
+import DashboardPage from '@/components/dashboard/dashboard';
 
 
 type Tab = 'dashboard' | 'tasks' | 'profile';
@@ -22,7 +23,7 @@ export default function Dashboard() {
     {
       id: 'dashboard',
       label: 'Dashboard',
-      component: <p>Dashboard</p>,
+      component: <DashboardPage/>,
     },
     {
       id: 'tasks',
