@@ -6,12 +6,25 @@ body {
   color: white; 
 }
 
-/* Invisible Scrollbar Utility Class */
-.invisible-scrollbar {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #888 transparent;
 }
 
-.invisible-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
+* {
+  scrollbar-width: none; 
+}
+
+*::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: transparent;
 }

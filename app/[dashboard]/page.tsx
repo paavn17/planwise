@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import TasksPage from '@/components/tasks';
+import TasksPage from '@/components/tasks/tasks';
 import ProfilePage from '../profile/page';
 
 
