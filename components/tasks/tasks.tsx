@@ -9,6 +9,7 @@ import {
   doc,
   query,
   updateDoc,
+  deleteDoc,
   where,
   orderBy,
   onSnapshot,
@@ -22,7 +23,7 @@ export type Task = {
   description: string;
   category: string[] | string;
   priority: 'High' | 'Medium' | 'Low';
-  status: 'Not Started' | 'To Do' | 'In Progress' | 'Completed';
+  status:   'To Do' | 'In Progress' | 'Completed';
   dueDate: string;
   userId: string;
   createdAt: Date;
@@ -70,6 +71,7 @@ const getStatusColor = (status: Task['status']) => {
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<'none' | 'priority' | 'dueDate'>('none');
@@ -132,6 +134,29 @@ export default function TasksPage() {
     }
   };
 
+  const handleUpdateTask = async (updatedData: TaskFormData) => {
+    if (!editingTask) return;
+
+    try {
+      const taskRef = doc(db, 'tasks', editingTask.id);
+      await updateDoc(taskRef, {
+        ...updatedData,
+        updatedAt: serverTimestamp(),
+      });
+      setEditingTask(null);
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      await deleteDoc(doc(db, 'tasks', taskId));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
   const filteredTasks = tasks.filter((task) => {
     const categoryText = Array.isArray(task.category) ? task.category.join(' ') : task.category;
     return (
@@ -176,7 +201,7 @@ export default function TasksPage() {
 
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-semibold"
+          className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md text-sm font-semibold"
         >
           <Plus size={16} /> Add Task
         </button>
@@ -224,10 +249,16 @@ export default function TasksPage() {
                   </div>
 
                   <div className="flex justify-end gap-3 mt-3">
-                    <button className="flex items-center gap-1 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-sm transition">
+                    <button
+                      onClick={() => setEditingTask(task)}
+                      className="flex items-center gap-1 px-3 py-1 rounded-md bg-gray-100 hover:bg-gray-200 text-sm transition"
+                    >
                       <Pencil size={16} /> Edit
                     </button>
-                    <button className="flex items-center gap-1 px-3 py-1 rounded-md bg-red-500 hover:bg-red-400 text-white text-sm transition">
+                    <button
+                      onClick={() => handleDeleteTask(task.id)}
+                      className="flex items-center gap-1 px-3 py-1 rounded-md bg-red-500 hover:bg-red-400 text-white text-sm transition"
+                    >
                       <Trash2 size={16} /> Delete
                     </button>
                   </div>
@@ -242,9 +273,21 @@ export default function TasksPage() {
         </>
       )}
 
-      {showForm && (
+      {(showForm || editingTask) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
-          <TaskForm onSubmit={handleAddTask} onCancel={() => setShowForm(false)} />
+          <TaskForm
+            onSubmit={editingTask ? handleUpdateTask : handleAddTask}
+            onCancel={() => { setShowForm(false); setEditingTask(null); }}
+            initialData={editingTask ? {
+              title: editingTask.title,
+              description: editingTask.description,
+              category: Array.isArray(editingTask.category) ? editingTask.category : [editingTask.category],
+              priority: editingTask.priority,
+              dueDate: editingTask.dueDate,
+              status: editingTask.status,
+            } : undefined}
+            mode={editingTask ? 'edit' : 'create'}
+          />
         </div>
       )}
     </div>

@@ -5,11 +5,7 @@ import { useRouter } from 'next/navigation';
 import TasksPage from '@/components/tasks/tasks';
 import ProfilePage from '../profile/page';
 import DashboardPage from '@/components/dashboard/dashboard';
-import {
-  LayoutDashboard,
-  ListTodo,
-  UserCircle,
-} from 'lucide-react';
+import { LayoutDashboard, ListTodo, UserCircle } from 'lucide-react';
 
 type Tab = 'dashboard' | 'tasks' | 'profile';
 
@@ -60,8 +56,11 @@ export default function Dashboard() {
       <button
         onClick={() => setActiveTab(tab.id)}
         className={`flex items-center gap-3 transition-all duration-200 transform
-          ${isMobile ? 'px-4 py-2 rounded-full text-xs sm:text-sm' : 'px-4 py-3 rounded-xl w-full'}
-          bg-white text-gray-700 hover:bg-gray-100
+          ${isMobile
+            ? 'px-4 py-2 rounded-full text-xs sm:text-sm'
+            : `px-4 py-3 rounded-xl w-full ${isActive ? 'bg-orange-100' : 'bg-white'}`
+          }
+          text-gray-700 hover:bg-gray-100
         `}
       >
         {/* Icon */}
@@ -74,7 +73,11 @@ export default function Dashboard() {
         </span>
 
         {/* Label (not shown on mobile) */}
-        {!isMobile && <span className="font-medium">{tab.label}</span>}
+        {!isMobile && (
+          <span className={`font-medium ${isActive ? 'text-orange-500' : ''}`}>
+            {tab.label}
+          </span>
+        )}
       </button>
     );
   };

@@ -55,66 +55,67 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 rounded-xl bg-white text-gray-900 shadow-md border border-gray-200">
-      <h1 className="text-2xl font-semibold mb-6 text-gray-800">My Profile</h1>
+    <div className="max-w-md mt-10 ml-10 p-6 rounded-xl bg-white text-gray-900 shadow-md border border-gray-200">
+  <h1 className="text-2xl font-semibold mb-6 text-gray-800">My Profile</h1>
 
-      {/* Name Field */}
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex-1">
-          <label className="block text-sm mb-1">Name</label>
-          <input
-            type="text"
-            value={name}
-            disabled={!editMode}
-            onChange={(e) => setName(e.target.value)}
-            className={`w-full px-4 py-2 rounded-lg border text-gray-800 ${
-              editMode ? 'border-gray-400 bg-gray-100' : 'border-transparent bg-gray-100'
-            } focus:outline-none`}
-          />
-        </div>
-
-        <button
-          onClick={() => setEditMode((prev) => !prev)}
-          className="mt-6 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition"
-        >
-          {editMode ? 'Cancel' : 'Edit'}
-        </button>
-      </div>
-
-      {/* Email Display (Read-only) */}
-      <div className="mb-6">
-        <label className="block text-sm mb-1">Email</label>
-        <input
-          type="email"
-          value={email}
-          disabled
-          className="w-full px-4 py-2 rounded-lg border text-gray-800 bg-gray-100 border-transparent focus:outline-none"
-        />
-      </div>
-
-      {/* Save Button */}
-      {editMode && (
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className={`w-full mb-3 py-2 rounded-lg font-medium transition ${
-            isSaving
-              ? 'bg-gray-400 cursor-not-allowed text-white'
-              : 'bg-green-600 hover:bg-green-700 text-white'
-          }`}
-        >
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </button>
-      )}
-
-      {/* Logout Button */}
-      <button
-        onClick={handleLogout}
-        className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition"
-      >
-        Logout
-      </button>
+  {/* Name Field */}
+  <div className="flex items-center gap-4 mb-4">
+    <div className="flex-1">
+      <label className="block text-sm mb-1">Name</label>
+      <input
+        type="text"
+        value={name}
+        disabled={!editMode}
+        onChange={(e) => setName(e.target.value)}
+        className={`w-full px-4 py-2 rounded-lg border text-gray-800 ${
+          editMode ? 'border-gray-400 bg-gray-100' : 'border-transparent bg-gray-100'
+        } focus:outline-none`}
+      />
     </div>
+
+    <button
+      onClick={() => setEditMode((prev) => !prev)}
+      className="mt-6 px-3 py-1 bg-orange-500 hover:bg-orange-700 text-white text-sm rounded-md transition"
+    >
+      {editMode ? 'Cancel' : 'Edit'}
+    </button>
+  </div>
+
+  {/* Email Display (Read-only) */}
+  <div className="mb-6">
+    <label className="block text-sm mb-1">Email</label>
+    <input
+      type="email"
+      value={email}
+      disabled
+      className="w-full px-4 py-2 rounded-lg border text-gray-800 bg-gray-100 border-transparent focus:outline-none"
+    />
+  </div>
+
+  {/* Save Button */}
+  {editMode && (
+    <button
+      onClick={handleSave}
+      disabled={isSaving}
+      className={`w-full mb-3 py-2 rounded-lg font-medium transition ${
+        isSaving
+          ? 'bg-gray-400 cursor-not-allowed text-white'
+          : 'bg-green-600 hover:bg-green-700 text-white'
+      }`}
+    >
+      {isSaving ? 'Saving...' : 'Save Changes'}
+    </button>
+  )}
+
+  {/* Logout Button */}
+  <button
+    onClick={handleLogout}
+    className="w-full border border-orange-500 hover:border-orange-700 text-red-500 py-2 rounded-lg font-medium transition"
+  >
+    Logout
+  </button>
+</div>
+
   );
 };
 

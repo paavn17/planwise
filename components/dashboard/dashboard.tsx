@@ -5,6 +5,7 @@ import TaskCalendar from "./calendar/calendar";
 import HighPriorityTasks from "./prioritytasks";
 import TaskSummary from "./tasksummary";
 import Quote from "./motivationCard";
+import FocusTimer from "./timer";
 
 const DashboardPage = () => {
   return (
@@ -18,17 +19,17 @@ const DashboardPage = () => {
 
       {/* Row 2: Calendar Left, Right Side Panels */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Calendar - 2/3 */}
-        <div className="lg:col-span-2">
+        {/* Left Side: Calendar and Task Summary */}
+        <div className="flex flex-col gap-6 lg:col-span-2">
           <TaskCalendar />
+          <TaskSummary />
         </div>
 
-        {/* Right Column - stacked components */}
+        {/* Right Side: Quote and High Priority Tasks */}
         <div className="flex flex-col gap-6">
-          {/* <HighPriorityTasks /> */}
-          <Quote/>
-          {/* Replace these with your actual upcoming/completed task components */}
-          <TaskSummary/>
+          <Quote />
+          <HighPriorityTasks />
+          <FocusTimer/>
         </div>
       </div>
     </div>
