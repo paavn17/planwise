@@ -43,19 +43,19 @@ const HighPriorityTasks = () => {
   }, []);
 
   return (
-    <div className="bg-zinc-900 text-white p-4 rounded-xl shadow-md w-full">
+    <div className="bg-white text-gray-900 p-4 rounded-xl shadow-md w-full border border-gray-200">
       <h2 className="text-xl font-semibold mb-4">🔥 High Priority Tasks</h2>
       {tasks.length === 0 ? (
-        <p className="text-gray-400">No high priority tasks found.</p>
+        <p className="text-gray-500">No high priority tasks found.</p>
       ) : (
         <ul className="space-y-3">
           {tasks.map((task) => (
-            <li key={task.id} className="bg-zinc-800 p-3 rounded-lg">
+            <li key={task.id} className="bg-gray-100 p-3 rounded-lg">
               <div className="flex justify-between items-center">
                 <span className="font-medium">{task.title}</span>
-                <span className="text-sm text-yellow-400">{task.dueDate}</span>
+                <span className="text-sm text-red-500">{task.dueDate}</span>
               </div>
-              <div className="text-sm text-gray-400">{task.status}</div>
+              <div className="text-sm text-gray-600">{task.status}</div>
             </li>
           ))}
         </ul>

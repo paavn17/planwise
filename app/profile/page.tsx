@@ -16,7 +16,6 @@ const ProfilePage = () => {
   const [editMode, setEditMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-
   useEffect(() => {
     if (user) {
       setName(user.displayName || '');
@@ -35,30 +34,31 @@ const ProfilePage = () => {
   };
 
   const handleSave = async () => {
-  if (!user) return;
-  setIsSaving(true); 
+    if (!user) return;
+    setIsSaving(true);
 
-  try {
-    await updateProfile(user, { displayName: name });
-    const userRef = doc(db, 'users', user.uid);
-    await updateDoc(userRef, { name });
+    try {
+      if (name !== user.displayName) {
+        await updateProfile(user, { displayName: name });
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, { name });
+      }
 
-    toast.success('Name updated successfully');
-    setEditMode(false);
-  } catch (err) {
-    console.error(err);
-    toast.error('Failed to update name');
-  } finally {
-    setIsSaving(false); 
-  }
-};
-
+      toast.success('Profile updated');
+      setEditMode(false);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update name');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-6 rounded-xl bg-zinc-900 text-white shadow-lg relative">
-      <h1 className="text-2xl font-semibold mb-6">My Profile</h1>
+    <div className="max-w-md mx-auto mt-10 p-6 rounded-xl bg-white text-gray-900 shadow-md border border-gray-200">
+      <h1 className="text-2xl font-semibold mb-6 text-gray-800">My Profile</h1>
 
-      {/* Name Field + Edit Button */}
+      {/* Name Field */}
       <div className="flex items-center gap-4 mb-4">
         <div className="flex-1">
           <label className="block text-sm mb-1">Name</label>
@@ -67,28 +67,28 @@ const ProfilePage = () => {
             value={name}
             disabled={!editMode}
             onChange={(e) => setName(e.target.value)}
-            className={`w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border ${
-              editMode ? 'border-gray-500' : 'border-transparent'
+            className={`w-full px-4 py-2 rounded-lg border text-gray-800 ${
+              editMode ? 'border-gray-400 bg-gray-100' : 'border-transparent bg-gray-100'
             } focus:outline-none`}
           />
         </div>
 
         <button
           onClick={() => setEditMode((prev) => !prev)}
-          className="mt-6 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-sm rounded-md transition"
+          className="mt-6 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md transition"
         >
           {editMode ? 'Cancel' : 'Edit'}
         </button>
       </div>
 
-      {/* Email Field (Read-only) */}
+      {/* Email Display (Read-only) */}
       <div className="mb-6">
         <label className="block text-sm mb-1">Email</label>
         <input
           type="email"
           value={email}
           disabled
-          className="w-full px-4 py-2 rounded-lg bg-zinc-800 text-white border border-transparent focus:outline-none"
+          className="w-full px-4 py-2 rounded-lg border text-gray-800 bg-gray-100 border-transparent focus:outline-none"
         />
       </div>
 
@@ -97,9 +97,9 @@ const ProfilePage = () => {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className={`w-full mb-3 py-2 rounded-lg transition ${
+          className={`w-full mb-3 py-2 rounded-lg font-medium transition ${
             isSaving
-              ? 'bg-gray-500 cursor-not-allowed'
+              ? 'bg-gray-400 cursor-not-allowed text-white'
               : 'bg-green-600 hover:bg-green-700 text-white'
           }`}
         >
@@ -107,11 +107,10 @@ const ProfilePage = () => {
         </button>
       )}
 
-
       {/* Logout Button */}
       <button
         onClick={handleLogout}
-        className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition"
+        className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium transition"
       >
         Logout
       </button>

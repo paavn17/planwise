@@ -1,0 +1,22 @@
+/* fullcalendar.css */
+.fc .fc-event-title {
+  white-space: normal;
+}
+
+.shadow-red-500\/60 {
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+.shadow-yellow-400\/60 {
+  box-shadow: 0 0 6px rgba(250, 204, 21, 0.6);
+}
+.shadow-green-400\/60 {
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
+}
+/* Remove default blue background from events */
+.fc-event {
+  background-color: white !important;
+  border: none !important;
+  color: black !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}

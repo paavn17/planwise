@@ -46,25 +46,52 @@ const OverviewCards = () => {
       });
     });
 
-    return () => unsubscribe(); // Clean up listener
+    return () => unsubscribe();
   }, []);
 
-  const cards = [
-    { title: 'Total Tasks', count: stats.total, color: 'bg-blue-600' },
-    { title: 'Completed', count: stats.completed, color: 'bg-green-600' },
-    { title: 'In Progress', count: stats.inProgress, color: 'bg-yellow-500' },
-    { title: 'Overdue', count: stats.overdue, color: 'bg-red-600' },
-  ];
+const cards = [
+  {
+    title: 'Total Tasks',
+    count: stats.total,
+    border: 'border-orange-600',
+    bg: 'bg-orange-500',
+    text: 'text-white',
+  },
+  {
+    title: 'Completed',
+    count: stats.completed,
+    border: 'border-emerald-600',
+    bg: 'bg-emerald-500',
+    text: 'text-white',
+  },
+  {
+    title: 'In Progress',
+    count: stats.inProgress,
+    border: 'border-yellow-600',
+    bg: 'bg-yellow-500',
+    text: 'text-white',
+  },
+  {
+    title: 'Overdue',
+    count: stats.overdue,
+    border: 'border-red-600',
+    bg: 'bg-red-500',
+    text: 'text-white',
+  },
+];
+
+
+
 
   return (
     <>
       {cards.map((card) => (
         <div
           key={card.title}
-          className={`p-4 rounded-lg shadow-md ${card.color} text-white`}
+          className={`p-4 rounded-lg shadow-sm border ${card.border} ${card.bg}`}
         >
-          <p className="text-sm">{card.title}</p>
-          <h2 className="text-2xl font-bold">{card.count}</h2>
+          <p className={`text-sm font-medium ${card.text}`}>{card.title}</p>
+          <h2 className={`text-2xl font-bold ${card.text}`}>{card.count}</h2>
         </div>
       ))}
     </>

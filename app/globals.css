@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 body {
-  /* @apply bg-zinc-800 text-white; */
-  background-image: linear-gradient(to left, rgb(56, 54, 54) 0%, black 100%);
-  color: white; 
+  /* @apply bg-zinc-800 text-white;
+  /* background-image: linear-gradient(to left, rgb(56, 54, 54) 0%, black 100%); */
+  /* color: black;  */ 
 }
 
 
