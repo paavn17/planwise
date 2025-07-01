@@ -34,20 +34,21 @@ const QuoteCard = () => {
 
   return (
     <div
-      className="w-[380px] h-[220px] rounded-xl overflow-hidden relative text-white shadow-lg"
-      style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1483389127117-b6a2102724ae?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      <div className="absolute inset-0  bg-opacity-60" />
-      <div className="relative z-10 h-full flex flex-col justify-center p-5">
-        <h2 className="text-lg font-semibold mb-2">{quote.title}</h2>
-        <p className="text-sm text-gray-200">{quote.author}</p>
-      </div>
-    </div>
+  className="hidden md:block w-[380px] h-[220px] rounded-xl overflow-hidden relative text-white shadow-lg"
+  style={{
+    backgroundImage:
+      "url('https://images.unsplash.com/photo-1483389127117-b6a2102724ae?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fHx8fA%3D%3D')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  }}
+>
+  <div className="absolute inset-0 bg-opacity-60" />
+  <div className="relative z-10 h-full flex flex-col justify-center p-5">
+    <h2 className="text-lg font-semibold mb-2">{quote.title}</h2>
+    <p className="text-sm text-gray-200">{quote.author}</p>
+  </div>
+</div>
+
   );
 };
 
