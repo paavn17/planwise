@@ -62,17 +62,19 @@ const TaskCalendar = () => {
     return () => unsubscribe();
   }, []);
 
-const renderEventContent = (eventInfo: EventContentArg) => {
-  const priority = eventInfo.event.extendedProps.priority || 'low';
-  const priorityColor = getPriorityColor(priority);
+  const renderEventContent = (eventInfo: EventContentArg) => {
+    const priority = eventInfo.event.extendedProps.priority || 'low';
+    const priorityColor = getPriorityColor(priority);
 
-  return (
-    <div className="flex justify-center items-center gap-2 text-xs font-medium text-gray-800">
-      <span className={`ml-2 inline-block w-2 h-2 rounded-full ${priorityColor}`}></span>
-      <span className="truncate">{eventInfo.event.title}</span>
-    </div>
-  );
-};
+    return (
+      <div className="flex justify-center items-center gap-2 text-xs font-medium text-gray-800">
+        <span
+          className={`inline-block ${priorityColor} w-2 h-2 rounded-full aspect-square flex-shrink-0`}
+        ></span>
+        <span className="truncate">{eventInfo.event.title}</span>
+      </div>
+    );
+  };
 
   return (
     <>

@@ -23,20 +23,12 @@ export type Task = {
   description: string;
   category: string[] | string;
   priority: 'High' | 'Medium' | 'Low';
-  status:   'To Do' | 'In Progress' | 'Completed';
+  status: 'To Do' | 'In Progress' | 'Completed';
   dueDate: string;
   userId: string;
   createdAt: Date;
   updatedAt: Date;
-};
-
-const getPriorityDot = (priority: Task['priority']) => {
-  switch (priority) {
-    case 'High': return 'bg-red-500';
-    case 'Medium': return 'bg-yellow-400';
-    case 'Low': return 'bg-green-500';
-    default: return 'bg-gray-500';
-  }
+  completedAt?: string;
 };
 
 const getCategoryTextColor = (category: string) => {
@@ -66,6 +58,15 @@ const getStatusColor = (status: Task['status']) => {
     case 'Completed': return 'text-green-600';
     default: return 'text-gray-500';
   }
+};
+
+// ✅ Card color based on priority and status
+const getCardColor = (task: Task) => {
+  if (task.status === 'Completed') return 'bg-green-100 border-green-300';
+  if (task.priority === 'High') return 'bg-red-100 border-red-300';
+  if (task.priority === 'Medium') return 'bg-yellow-100 border-yellow-300';
+  if (task.priority === 'Low') return 'bg-purple-100 border-purple-300';
+  return 'bg-white border-gray-200';
 };
 
 export default function TasksPage() {
@@ -119,12 +120,16 @@ export default function TasksPage() {
     const user = auth.currentUser;
     if (!user) return;
 
-    const task = {
+    const task: any = {
       ...data,
       userId: user.uid,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     };
+
+    if (task.completedAt === undefined) {
+      delete task.completedAt;
+    }
 
     try {
       await addDoc(collection(db, 'tasks'), task);
@@ -137,12 +142,18 @@ export default function TasksPage() {
   const handleUpdateTask = async (updatedData: TaskFormData) => {
     if (!editingTask) return;
 
+    const updatePayload: any = {
+      ...updatedData,
+      updatedAt: serverTimestamp(),
+    };
+
+    if (updatePayload.completedAt === undefined) {
+      delete updatePayload.completedAt;
+    }
+
     try {
       const taskRef = doc(db, 'tasks', editingTask.id);
-      await updateDoc(taskRef, {
-        ...updatedData,
-        updatedAt: serverTimestamp(),
-      });
+      await updateDoc(taskRef, updatePayload);
       setEditingTask(null);
     } catch (error) {
       console.error('Error updating task:', error);
@@ -174,7 +185,7 @@ export default function TasksPage() {
     } else if (sortOption === 'dueDate') {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     }
-    return 0; // Default (no sorting)
+    return 0;
   });
 
   return (
@@ -215,17 +226,9 @@ export default function TasksPage() {
             {sortedTasks.map((task) => (
               <div
                 key={task.id}
-                className="relative bg-white border border-gray-200 rounded-xl p-5 flex flex-col justify-between shadow-sm h-full"
+                className={`relative ${getCardColor(task)} rounded-xl p-5 flex flex-col justify-between shadow-sm h-full overflow-hidden transition-colors duration-300`}
               >
-                {/* Shiny Priority Dot */}
-                <div className="absolute top-4 right-4">
-                  <div
-                    className={`w-3 h-3 rounded-full ${getPriorityDot(task.priority)} shadow-md animate-[ping_1s_infinite] ring-2 ring-white ring-offset-2`}
-                    title={`Priority: ${task.priority}`}
-                  />
-                </div>
-
-                <div className="flex flex-col justify-between h-full">
+                <div className="flex flex-col justify-between h-full relative z-20">
                   <div>
                     <h2 className="text-lg font-semibold mb-1">{task.title}</h2>
                     <p className="text-base text-gray-600 leading-relaxed mb-2 line-clamp-4">
@@ -242,7 +245,9 @@ export default function TasksPage() {
                   </div>
 
                   <div className="flex items-center justify-between mt-auto">
-                    <span className="text-sm text-gray-600">Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                    <span className="text-sm text-gray-600">
+                      Due: {new Date(task.dueDate).toLocaleDateString()}
+                    </span>
                     <div className={`text-sm font-semibold ${getStatusColor(task.status)}`}>
                       {task.status}
                     </div>
