@@ -10,6 +10,7 @@ export interface TaskFormData {
   priority: 'High' | 'Medium' | 'Low';
   dueDate: string;
   status: 'To Do' | 'In Progress' | 'Completed';
+  completedAt?: string;
 }
 
 interface TaskFormProps {
@@ -35,17 +36,38 @@ export default function TaskForm({ onSubmit, onCancel, initialData, mode = 'crea
     status: 'To Do',
   });
 
-  // Load initial data if editing
+
   useEffect(() => {
     if (initialData) setFormData(initialData);
   }, [initialData]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+ const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) => {
+  const { name, value } = e.target;
+
+  // Handle status change for completedAt
+  if (name === 'status') {
+    const statusValue = value as TaskFormData['status']; // ✅ Explicit type cast
+
+    if (statusValue === 'Completed') {
+      setFormData((prev) => ({
+        ...prev,
+        status: statusValue,
+        completedAt: new Date().toISOString(), // Set timestamp
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        status: statusValue,
+        completedAt: undefined, // Clear timestamp if not completed
+      }));
+    }
+  } else {
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  }
+};
+
 
   const handleCategoryChange = (category: string) => {
     setFormData((prev) => ({
@@ -59,24 +81,6 @@ export default function TaskForm({ onSubmit, onCancel, initialData, mode = 'crea
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'High': return 'from-red-500 to-red-600';
-      case 'Medium': return 'from-yellow-500 to-orange-500';
-      case 'Low': return 'from-green-500 to-green-600';
-      default: return 'from-gray-500 to-gray-600';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'To Do': return 'from-blue-500 to-blue-600';
-      case 'In Progress': return 'from-purple-500 to-purple-600';
-      case 'Completed': return 'from-green-500 to-green-600';
-      default: return 'from-gray-500 to-gray-600';
-    }
   };
 
   return (

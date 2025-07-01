@@ -86,7 +86,7 @@ export default function Dashboard() {
     <div className="flex h-screen text-gray-900 bg-gray-50 overflow-hidden relative">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col fixed top-6 left-6 bottom-6 w-50 bg-white border border-gray-200 rounded-3xl p-6 z-50 shadow-xl">
-        <h2 className="text-xl font-bold mb-10">PlanWise</h2>
+        <h2 className="text-[30px] font-bold mb-10">Plan<span className='text-orange-500'>W</span>ise</h2>
         <nav className="flex flex-col gap-3">
           {tabs.map((tab) => (
             <TabButton key={`desktop-${tab.id}`} tab={tab} />

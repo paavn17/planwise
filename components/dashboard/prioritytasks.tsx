@@ -43,8 +43,8 @@ const HighPriorityTasks = () => {
   }, []);
 
   return (
-    <div className="bg-white text-gray-900 p-4 rounded-xl shadow-md w-full border border-gray-200">
-      <h2 className="text-xl font-semibold mb-4">🔥 High Priority Tasks</h2>
+    <div className="bg-red-600 text-gray-900 p-4 rounded-xl shadow-md w-full border border-gray-200">
+      <h2 className="text-xl font-semibold mb-4"> High Priority Tasks</h2>
       {tasks.length === 0 ? (
         <p className="text-gray-500">No high priority tasks found.</p>
       ) : (

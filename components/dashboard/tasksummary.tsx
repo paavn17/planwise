@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { parseISO, isToday, isWithinInterval, subDays } from 'date-fns';
+import { parseISO, isWithinInterval, subDays, isAfter, format, compareAsc } from 'date-fns';
 
 interface Task {
   title: string;
   dueDate: string;
-  status:  'To Do' | 'In Progress' | 'Completed';
+  status: 'To Do' | 'In Progress' | 'Completed';
   userId: string;
+  completedAt?: string;
 }
 
 const TaskSummary = () => {
@@ -42,18 +43,25 @@ const TaskSummary = () => {
 
   const today = new Date();
 
-  const todaysTasks = tasks.filter(task =>
-    isToday(parseISO(task.dueDate)) &&
-    task.status !== 'Completed'
-  );
+  // Upcoming Tasks (Next 7 tasks sorted by due date)
+  const upcomingTasks = tasks
+    .filter(task =>
+      isAfter(parseISO(task.dueDate), subDays(today, 1)) && // Tasks due today or in future
+      task.status !== 'Completed'
+    )
+    .sort((a, b) => compareAsc(parseISO(a.dueDate), parseISO(b.dueDate)))
+    .slice(0, 7);
 
-  const recentlyCompleted = tasks.filter(task =>
-    task.status === 'Completed' &&
-    isWithinInterval(parseISO(task.dueDate), {
-      start: subDays(today, 7),
-      end: today,
-    })
-  );
+  // Recently Completed Tasks (in last 7 days by completion timestamp)
+  const recentlyCompleted = tasks
+    .filter(task =>
+      task.status === 'Completed' &&
+      task.completedAt &&
+      isWithinInterval(parseISO(task.completedAt), {
+        start: subDays(today, 7),
+        end: today,
+      })
+    );
 
   if (loading) {
     return (
@@ -65,18 +73,18 @@ const TaskSummary = () => {
 
   return (
     <div className="grid md:grid-cols-2 gap-4 mt-6">
-      {/* Today's Tasks */}
+      {/* Upcoming Tasks */}
       <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
-        <h2 className="text-lg font-semibold mb-3 text-gray-900">📌 Today's Tasks</h2>
-        {todaysTasks.length === 0 ? (
-          <p className="text-gray-500 text-sm">No tasks for today 🎉</p>
+        <h2 className="text-lg font-semibold mb-3 text-gray-900">🚀 Upcoming Tasks (Next 7)</h2>
+        {upcomingTasks.length === 0 ? (
+          <p className="text-gray-500 text-sm">No upcoming tasks</p>
         ) : (
           <ul className="space-y-2">
-            {todaysTasks.map((task, index) => (
+            {upcomingTasks.map((task, index) => (
               <li key={index} className="bg-gray-100 px-3 py-2 rounded-md text-gray-900 shadow-sm">
                 <div className="flex justify-between">
                   <span>{task.title}</span>
-                  <span className="text-xs text-yellow-600">({task.status})</span>
+                  <span className="text-xs text-blue-600">{format(parseISO(task.dueDate), 'yyyy-MM-dd')}</span>
                 </div>
               </li>
             ))}
@@ -84,9 +92,9 @@ const TaskSummary = () => {
         )}
       </div>
 
-      {/* Recently Completed */}
+      {/* Recently Completed Tasks */}
       <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
-        <h2 className="text-lg font-semibold mb-3 text-gray-900">✅ Recently Completed (last 7 days)</h2>
+        <h2 className="text-lg font-semibold mb-3 text-gray-900">✅ Recently Completed (Last 7 Days)</h2>
         {recentlyCompleted.length === 0 ? (
           <p className="text-gray-500 text-sm">No recent completions</p>
         ) : (
@@ -95,7 +103,9 @@ const TaskSummary = () => {
               <li key={index} className="bg-gray-100 px-3 py-2 rounded-md text-gray-900 shadow-sm">
                 <div className="flex justify-between">
                   <span>{task.title}</span>
-                  <span className="text-xs text-green-600">{task.dueDate.slice(0, 10)}</span>
+                  <span className="text-xs text-green-600">
+                    {task.completedAt ? format(parseISO(task.completedAt), 'yyyy-MM-dd HH:mm') : ''}
+                  </span>
                 </div>
               </li>
             ))}
